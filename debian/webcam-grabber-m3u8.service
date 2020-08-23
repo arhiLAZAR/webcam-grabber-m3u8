@@ -1,12 +1,12 @@
 [Unit]
-Description=Webcam grabber (mjpeg)
+Description=Webcam grabber (m3u8)
 Wants=basic.target
 After=basic.target network.target
 
 [Service]
-#User=ats-exporter
-#Group=ats-exporter
-ExecStart=/usr/bin/webcam_m3u8
+#User=webcam-grabber-m3u8
+#Group=webcam-grabber-m3u8
+ExecStart=/usr/local/bin/webcam-grabber-m3u8
 StartLimitInterval=0
 
 ExecReload=/bin/kill -HUP $MAINPID
@@ -14,7 +14,7 @@ KillMode=process
 Restart=always
 
 Environment=LD_LIBRARY_PATH=/usr/local/ffmpeg/lib
-WorkingDirectory=/etc/jpeg-convert
+WorkingDirectory=/etc/webcam-grabber-m3u8
 #CPUQuota=10%
 #MemoryLimit=256M
 
