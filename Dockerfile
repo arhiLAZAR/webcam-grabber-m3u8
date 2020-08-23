@@ -24,14 +24,13 @@ mv go /usr/local/ && \
 echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc && \
 export PATH=$PATH:/usr/local/go/bin
 
-RUN \
-git clone https://github.com/arhiLAZAR/webcam-grabber-m3u8 && \
-cd webcam-grabber-m3u8 && \
-go build . && \
-mv webcam-grabber-m3u8 /usr/local/bin/webcam-grabber-m3u8 && \
-mkdir /etc/webcam-grabber-m3u8 && \
-cp debian/webcam-grabber-m3u8.service /lib/systemd/system/webcam-grabber-m3u8.service && \
-systemctl daemon-reload && \
-systemctl enable webcam-grabber-m3u8.service
+# RUN \
+# git clone https://github.com/arhiLAZAR/webcam-grabber-m3u8 && \
+# cd webcam-grabber-m3u8 && \
+# /usr/local/go/bin/go build . && \
+# mv webcam-grabber-m3u8 /root/webcam-grabber-m3u8
 
-# && systemctl start webcam-grabber-m3u8.service
+COPY webcam-grabber-m3u8 /root/webcam-grabber-m3u8
+COPY client_secret.json /root/client_secret.json
+
+ENTRYPOINT /root/webcam-grabber-m3u8
