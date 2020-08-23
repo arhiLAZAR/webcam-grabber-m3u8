@@ -1,5 +1,5 @@
 FROM ubuntu:bionic
-LABEL maintainer="Anton Evdokimov <arhiLAZAR@tandex.ru>"
+LABEL maintainer="Anton Evdokimov <arhiLAZAR@yandex.ru>"
 
 RUN ln -snf /usr/share/zoneinfo/Europe/Moscow /etc/localtime && echo Europe/Moscow > /etc/timezone
 
@@ -15,3 +15,23 @@ make && \
 make install && \
 echo "export LD_LIBRARY_PATH=/usr/local/ffmpeg/lib" >> ~/.bashrc && \
 export LD_LIBRARY_PATH=/usr/local/ffmpeg/lib
+
+RUN \
+curl -L -O https://golang.org/dl/go1.15.linux-amd64.tar.gz && \
+tar -zxf go1.15.linux-amd64.tar.gz && \
+rm go*.tar.gz && \
+mv go /usr/local/ && \
+echo 'export PATH=$PATH:/usr/local/go/bin' >> ~/.bashrc && \
+export PATH=$PATH:/usr/local/go/bin
+
+RUN \
+git clone https://github.com/arhiLAZAR/webcam-grabber-m3u8 && \
+cd webcam-grabber-m3u8 && \
+go build . && \
+mv webcam-grabber-m3u8 /usr/local/bin/webcam-grabber-m3u8 && \
+mkdir /etc/webcam-grabber-m3u8 && \
+cp debian/webcam-grabber-m3u8.service /lib/systemd/system/webcam-grabber-m3u8.service && \
+systemctl daemon-reload && \
+systemctl enable webcam-grabber-m3u8.service
+
+# && systemctl start webcam-grabber-m3u8.service
