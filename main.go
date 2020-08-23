@@ -15,7 +15,7 @@ import (
 const (
 	webcamURL = "https://1strela.ru/webcams/92e9cb983ec44cac95bc1d0d467a1e48/camera.m3u8"
 	// dirname           = "/home/laz/dir_to_trash/video/"
-	dirname           = "/ffmpeg/"
+	dirname           = "/ffmpeg/" // check trailing slash!!!
 	webcamTimezone    = +3
 	speedUpMultiplier = 150
 
@@ -24,8 +24,10 @@ const (
 	normalVideoCleanAfter = true
 
 	speedUpVideoPrefix     = "fast_video_"
-	speedUpVideoSuffix     = ".ts"
+	speedUpVideoSuffix     = ".mp4"
 	speedUpVideoCleanAfter = true
+
+	convertAndExit = true
 )
 
 func main() {
@@ -84,7 +86,7 @@ func convertAndUpload(dirname string) {
 	title := fmt.Sprintf("Аист %s x%d", date, speedUpMultiplier)
 
 	_, err := uploadVideo(speedUpVideoName, title, description, privacy)
-	if err == nil && normalVideoCleanAfter {
+	if err == nil && speedUpVideoCleanAfter {
 		checkErr(os.Remove(speedUpVideoName))
 	}
 }
