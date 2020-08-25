@@ -27,11 +27,28 @@ const (
 	speedUpVideoSuffix     = ".mp4"
 	speedUpVideoCleanAfter = true
 
-	convertAndExit = true
+	convertUploadAndExit = false
+	uploadAndExit        = false
 )
 
 func main() {
 	var convertDate int64 = time.Now().Unix()
+
+	if convertUploadAndExit {
+		convertAndUpload(dirname)
+		os.Exit(0)
+	}
+
+	if uploadAndExit {
+		description := fmt.Sprintf("Ускоренная запись вебкамеры со стройки ЖК \"Аист\"\nhttps://1strela.ru/aist/progress")
+		privacy := "public"
+		date := time.Now().Format("02 January 2006")
+		title := fmt.Sprintf("Аист %s x%d", date, speedUpMultiplier)
+
+		_, err := uploadVideo("/ffmpeg/fast_video_x150_000001.mp4", title, description, privacy)
+		checkErr(err)
+		os.Exit(0)
+	}
 
 	for {
 		normalVideoCount := getLastFile(dirname, normalVideoPrefix, normalVideoSuffix)
@@ -86,7 +103,7 @@ func convertAndUpload(dirname string) {
 	title := fmt.Sprintf("Аист %s x%d", date, speedUpMultiplier)
 
 	_, err := uploadVideo(speedUpVideoName, title, description, privacy)
-	if err == nil && speedUpVideoCleanAfter {
+	if err == nil && speedUpVideoCleanAfter { // TODO: add checkerr
 		checkErr(os.Remove(speedUpVideoName))
 	}
 }
