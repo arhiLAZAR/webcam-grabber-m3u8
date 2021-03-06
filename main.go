@@ -13,11 +13,14 @@ import (
 )
 
 const (
-	webcamURL = "https://1strela.ru/webcams/92e9cb983ec44cac95bc1d0d467a1e48/camera.m3u8"
-	// dirname           = "/home/laz/dir_to_trash/video/"
+	webcamPrefix   = "https://1strela.ru/webcams/92e9cb983ec44cac95bc1d0d467a1e48"
+	webcamPlaylist = "camera.m3u8"
+	// webcamURL      = "https://1strela.ru/webcams/92e9cb983ec44cac95bc1d0d467a1e48/camera.m3u8"
+	// dirname = "/home/laz/dir_to_trash/video/"
 	dirname           = "/ffmpeg/" // check trailing slash!!!
 	webcamTimezone    = +3
 	speedUpMultiplier = 150
+	timeout           = 1
 
 	normalVideoPrefix     = "normal_video_"
 	normalVideoSuffix     = ".ts"
@@ -32,6 +35,7 @@ const (
 )
 
 func main() {
+
 	var convertDate int64 = time.Now().Unix()
 
 	if convertUploadAndExit {
@@ -50,13 +54,9 @@ func main() {
 		os.Exit(0)
 	}
 
+	go downloadParts(webcamPrefix, webcamPlaylist, dirname)
+
 	for {
-		normalVideoCount := getLastFile(dirname, normalVideoPrefix, normalVideoSuffix)
-		normalVideoCount++
-		normalVideoName := fmt.Sprintf("%s%06.f%s", normalVideoPrefix, float64(normalVideoCount), normalVideoSuffix)
-
-		recordLiveStream(webcamURL, dirname, normalVideoName, convertDate)
-
 		if timeToConvert(convertDate, webcamTimezone) {
 			convertDate = time.Now().Unix()
 			go convertAndUpload(dirname)
@@ -94,13 +94,14 @@ func convertAndUpload(dirname string) {
 	speedUpVideoName := fmt.Sprintf("%s%s%06.f%s", dirname, speedUpFilenamePrefMulti, float64(speedUpVideoCount), speedUpVideoSuffix)
 
 	normalVideosList := getFileList(dirname, normalVideoPrefix, normalVideoSuffix)
-	speedUpVideo(dirname, normalVideosList, speedUpVideoName, speedUpMultiplier, normalVideoCleanAfter)
 
 	// Upload to youtube
 	description := fmt.Sprintf("Ускоренная запись вебкамеры со стройки ЖК \"Аист\"\nhttps://1strela.ru/aist/progress")
 	privacy := "public"
 	date := time.Now().Format("02 January 2006")
 	title := fmt.Sprintf("Аист %s x%d", date, speedUpMultiplier)
+
+	speedUpVideo(dirname, normalVideosList, speedUpVideoName, speedUpMultiplier, normalVideoCleanAfter)
 
 	_, err := uploadVideo(speedUpVideoName, title, description, privacy)
 	if err == nil && speedUpVideoCleanAfter { // TODO: add checkerr
